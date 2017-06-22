@@ -38,8 +38,17 @@ class CsvImportService
      */
     private $validProducts = [];
 
+    /**
+     * @var int
+     */
+    private $validated = 0;
+
     const MAX_ROWS = 100;
 
+    /**
+     * @var bool
+     */
+    private $isTest;
 
 
     public function __construct(EntityManagerInterface $em, ValidatorInterface $validator, LoggerInterface $logger)
@@ -52,14 +61,17 @@ class CsvImportService
 
     /**
      * @param string $fileName
+     * @param bool $isTest
      *
      * @return array | int[]
      */
-    public function readFile($fileName) : array
+    public function readFile($fileName, $isTest = false) : array
     {
+        $this->isTest = $isTest;
+
         $productConstructor = new ProductConstructService();
 
-        $row = $validated = 0;
+        $row = 0;
 
         $csvHandle = fopen($fileName, "r");
 
@@ -80,41 +92,50 @@ class CsvImportService
             $errors = $this->validator->validate($product);
 
             if (count($errors)==0) {
+                if (array_key_exists($product->getProductCode(), $this->validProducts)) {
+                    $this->em->remove($this->validProducts[$product->getProductCode()]);
+                }
                 $this->validProducts[$product->getProductCode()]=$product;
+                $this->em->persist($product);
             } else {
                 $this->logger->error(sprintf("%s\nat row: %d", (string)$errors, $row));
             }
 
             //flushing Products separately. After every %MAX_ROWS%
             if ($row % $this::MAX_ROWS == 0) {
-                $validated += $this->flushProducts();
+                $this->flushProducts();
             }
         }
 
         //Control Flush
-        $validated += $this->flushProducts();
+        $this->flushProducts();
 
         //return count of imported values, and total rows count
-        return [$validated,$row];
+        return [count($this->validProducts),$row];
     }
 
-    /**
-     * @return int
-     */
-    public function flushProducts() : int
+
+    public function flushProducts()
     {
-        foreach ($this->validProducts as $product) {
-            $this->em->persist($product);
+        if ($this->isTest) {
+            return;
         }
 
         try {
             $this->em->flush();
-            $validated = count($this->validProducts);
-            $this->validProducts=[];
-            return $validated;
         } catch (Exception $e) {
             $this->logger->error($e->getMessage());
-            return 0;
         }
+    }
+
+    /**
+     * @return array
+     */
+    public function clearProducts()
+    {
+        return $this->em
+            ->createQuery("DELETE AppBundle:Product p")
+            ->getResult()
+        ;
     }
 }
