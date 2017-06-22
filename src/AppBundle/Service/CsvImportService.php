@@ -9,7 +9,6 @@
 namespace AppBundle\Service;
 
 use AppBundle\Entity\Product;
-use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Config\Definition\Exception\Exception;
@@ -38,11 +37,6 @@ class CsvImportService
      */
     private $validProducts = [];
 
-    /**
-     * @var int
-     */
-    private $validated = 0;
-
     const MAX_ROWS = 100;
 
     /**
@@ -50,12 +44,21 @@ class CsvImportService
      */
     private $isTest;
 
+    /**
+     * @var ProductConstructService
+     */
+    private $productConstructor;
 
-    public function __construct(EntityManagerInterface $em, ValidatorInterface $validator, LoggerInterface $logger)
-    {
+    public function __construct(
+        EntityManagerInterface $em,
+        ValidatorInterface $validator,
+        LoggerInterface $logger,
+        ProductConstructService $productConstructor
+    ) {
         $this->em = $em;
         $this->validator = $validator;
         $this->logger = $logger;
+        $this->productConstructor = $productConstructor;
     }
 
 
@@ -69,8 +72,6 @@ class CsvImportService
     {
         $this->isTest = $isTest;
 
-        $productConstructor = new ProductConstructService();
-
         $row = 0;
 
         $csvHandle = fopen($fileName, "r");
@@ -82,7 +83,7 @@ class CsvImportService
 
             //constructing Product using service helper
             try {
-                $product = $productConstructor->constructProduct($result);
+                $product = $this->productConstructor->constructProduct($result);
             } catch (Exception $e) {
                 $this->logger->error(sprintf("%s\nat row %d", $e->getMessage(), $row));
                 continue;

@@ -36,3 +36,7 @@ services:
     csvimporter:
         class: AppBundle\Service\CsvImportService
         public: true
+
+    constructor.product:
+        class: AppBundle\Service\ProductConstructService
+        public: true
