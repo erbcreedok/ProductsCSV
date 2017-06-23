@@ -33,6 +33,11 @@ class CsvImportService
     private $logger;
 
     /**
+     * @var ProductConstructService
+     */
+    private $productConstructor;
+
+    /**
      * @var array|Product[]
      */
     private $validProducts = [];
@@ -43,11 +48,6 @@ class CsvImportService
      * @var bool
      */
     private $isTest;
-
-    /**
-     * @var ProductConstructService
-     */
-    private $productConstructor;
 
     public function __construct(
         EntityManagerInterface $em,

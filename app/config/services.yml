@@ -36,6 +36,11 @@ services:
     csvimporter:
         class: AppBundle\Service\CsvImportService
         public: true
+        arguments:
+            - "@doctrine.orm.entity_manager"
+            - "@validator"
+            - "@logger"
+            - "@constructor.product"
 
     constructor.product:
         class: AppBundle\Service\ProductConstructService
