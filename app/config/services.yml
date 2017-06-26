@@ -37,11 +37,4 @@ services:
         class: AppBundle\Service\CsvImportService
         public: true
         arguments:
-            - "@doctrine.orm.entity_manager"
-            - "@validator"
-            - "@logger"
-            - "@constructor.product"
-
-    constructor.product:
-        class: AppBundle\Service\ProductConstructService
-        public: true
+            $maxRows : '100'

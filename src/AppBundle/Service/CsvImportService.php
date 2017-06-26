@@ -33,32 +33,30 @@ class CsvImportService
     private $logger;
 
     /**
-     * @var ProductConstructService
-     */
-    private $productConstructor;
-
-    /**
      * @var array|Product[]
      */
     private $validProducts = [];
-
-    const MAX_ROWS = 100;
 
     /**
      * @var bool
      */
     private $isTest;
 
+    /**
+     * @var int
+     */
+    private $maxRows;
+
     public function __construct(
         EntityManagerInterface $em,
         ValidatorInterface $validator,
         LoggerInterface $logger,
-        ProductConstructService $productConstructor
+        $maxRows
     ) {
         $this->em = $em;
         $this->validator = $validator;
         $this->logger = $logger;
-        $this->productConstructor = $productConstructor;
+        $this->maxRows = $maxRows;
     }
 
 
@@ -66,26 +64,42 @@ class CsvImportService
      * @param string $fileName
      * @param bool $isTest
      *
-     * @return array | int[]
+     * @return array | null
      */
-    public function readFile($fileName, $isTest = false) : array
+    public function readFile($fileName, $isTest = false)
     {
         $this->isTest = $isTest;
 
         $row = 0;
 
-        $csvHandle = fopen($fileName, "r");
+        if (file_exists($fileName)) {
+            $csvHandle = fopen($fileName, "r");
+        } else {
+            $message = sprintf("fopen(%s): failed to open stream: No such file or directory", $fileName);
+            $this->logger->error($message);
+            return null;
+        }
 
-        $fieldNames = fgetcsv($csvHandle); //erasing first row from handler
+        $columnsCount = count(fgetcsv($csvHandle)); //erasing first row from handler
+
+        $log = ["parse_errors"=>0, "validate_errors"=>0, "construct_errors"=>0];
 
         while ($result = fgetcsv($csvHandle)) {
             $row++;
 
             //constructing Product using service helper
+            if (count($result)!==$columnsCount) {
+                $message = sprintf("Wrong count of columns.\nExpected %d, given %d", $columnsCount, count($result));
+                $log["parse_errors"]+=1;
+                $this->logger->error($message);
+                continue;
+            }
+
             try {
-                $product = $this->productConstructor->constructProduct($result);
+                ($product = new Product())->constructProduct($result);
             } catch (Exception $e) {
                 $this->logger->error(sprintf("%s\nat row %d", $e->getMessage(), $row));
+                $log["construct_errors"]+=1;
                 continue;
             }
 
@@ -100,10 +114,11 @@ class CsvImportService
                 $this->em->persist($product);
             } else {
                 $this->logger->error(sprintf("%s\nat row: %d", (string)$errors, $row));
+                $log["validate_errors"]+=1;
             }
 
             //flushing Products separately. After every %MAX_ROWS%
-            if ($row % $this::MAX_ROWS == 0) {
+            if ($row % $this->maxRows == 0) {
                 $this->flushProducts();
             }
         }
@@ -112,7 +127,7 @@ class CsvImportService
         $this->flushProducts();
 
         //return count of imported values, and total rows count
-        return [count($this->validProducts),$row];
+        return ["validated"=>count($this->validProducts), "total"=>$row, "errors"=>$log];
     }
 
 

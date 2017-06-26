@@ -5,6 +5,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
@@ -34,22 +35,19 @@ class CsvImportCommand extends ContainerAwareCommand
                 'file',
                 InputArgument::OPTIONAL,
                 "Enter path to CSV file",
-                "%kernel.root_dir%/../src/AppBundle/Data/stock.csv"
+                __DIR__."/../Data/stock.csv"
             )
             ->addOption(
                 'test',
                 null,
-                InputArgument::OPTIONAL,
-                "Is this test mode",
-                false
-
+                InputOption::VALUE_NONE,
+                "Is this test mode"
             )
             ->addOption(
                 'clear',
                 null,
-                InputArgument::OPTIONAL,
-                "Clear DB before import",
-                false
+                InputOption::VALUE_NONE,
+                "Clear DB before import"
             )
         ;
     }
@@ -67,7 +65,11 @@ class CsvImportCommand extends ContainerAwareCommand
 
         $log = $csvImportService->readFile($input->getArgument('file'), $input->getOption("test"));
 
-        $io->success(sprintf("CSV successfully imported %d out of %d values", $log[0], $log[1]));
+        if ($log) {
+            $io->success(sprintf("CSV successfully imported %d out of %d values", $log["validated"], $log["total"]));
+        } else {
+            $io->error("Error on importing file: null returned");
+        }
     }
 
 }

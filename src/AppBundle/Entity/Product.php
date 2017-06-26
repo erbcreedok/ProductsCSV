@@ -8,6 +8,7 @@
 
 namespace AppBundle\Entity;
 
+use AppBundle\Traits\ProductConstructor;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -22,6 +23,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class Product
 {
+
+    use ProductConstructor;
 
     /**
      * @var int
