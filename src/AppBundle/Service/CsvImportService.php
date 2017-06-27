@@ -33,6 +33,16 @@ class CsvImportService
     private $logger;
 
     /**
+     * @var ProductConstructor
+     */
+    private $productConstructor;
+
+    /**
+     * @var int
+     */
+    private $maxRows;
+
+    /**
      * @var array|Product[]
      */
     private $validProducts = [];
@@ -42,20 +52,17 @@ class CsvImportService
      */
     private $isTest;
 
-    /**
-     * @var int
-     */
-    private $maxRows;
-
     public function __construct(
         EntityManagerInterface $em,
         ValidatorInterface $validator,
         LoggerInterface $logger,
-        $maxRows
+        ProductConstructor $productConstructor,
+        int $maxRows
     ) {
         $this->em = $em;
         $this->validator = $validator;
         $this->logger = $logger;
+        $this->productConstructor = $productConstructor;
         $this->maxRows = $maxRows;
     }
 
@@ -66,7 +73,7 @@ class CsvImportService
      *
      * @return array | null
      */
-    public function readFile($fileName, $isTest = false)
+    public function readFile(string $fileName, bool $isTest = false): ?array
     {
         $this->isTest = $isTest;
 
@@ -80,14 +87,15 @@ class CsvImportService
             return null;
         }
 
-        $columnsCount = count(fgetcsv($csvHandle)); //erasing first row from handler
+        $columnsTitles = fgetcsv($csvHandle); //reading titles of CSV file
+        $columnsCount = count($columnsTitles); //counting columns
 
         $log = ["parse_errors"=>0, "validate_errors"=>0, "construct_errors"=>0];
 
         while ($result = fgetcsv($csvHandle)) {
             $row++;
 
-            //constructing Product using service helper
+            //Check for columns count
             if (count($result)!==$columnsCount) {
                 $message = sprintf("Wrong count of columns.\nExpected %d, given %d", $columnsCount, count($result));
                 $log["parse_errors"]+=1;
@@ -95,8 +103,15 @@ class CsvImportService
                 continue;
             }
 
+            //rename indexes by names of CSV columns
+            foreach ($result as $key => $column) {
+                $result[$columnsTitles[$key]] = $result[$key];
+                unset($result[$key]);
+            }
+
+            //constructing Product using service helper
             try {
-                ($product = new Product())->constructProduct($result);
+                $product = $this->productConstructor->constructProduct($result);
             } catch (Exception $e) {
                 $this->logger->error(sprintf("%s\nat row %d", $e->getMessage(), $row));
                 $log["construct_errors"]+=1;
@@ -144,14 +159,10 @@ class CsvImportService
         }
     }
 
-    /**
-     * @return array
-     */
     public function clearProducts()
     {
-        return $this->em
+        $this->em
             ->createQuery("DELETE AppBundle:Product p")
-            ->getResult()
-        ;
+            ->getResult();
     }
 }

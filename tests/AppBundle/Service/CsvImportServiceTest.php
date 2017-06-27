@@ -8,15 +8,12 @@
 
 namespace Tests\AppBundle\Service;
 
-use AppBundle\Entity\Product;
 use AppBundle\Service\CsvImportService;
-use AppBundle\Service\ProductConstructService;
+use AppBundle\Service\ProductConstructor;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\Debug\Exception\ContextErrorException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
-
 
 class CsvImportServiceTest extends TestCase
 {
@@ -64,21 +61,28 @@ class CsvImportServiceTest extends TestCase
             ->getMock()
         ;
 
-        $this->productConstructor = $this->getMockBuilder(ProductConstructService::class)
+        $this->productConstructor = $this->getMockBuilder(ProductConstructor::class)
+            ->disableOriginalConstructor()
             ->getMock()
         ;
 
-        $this->service = new CsvImportService($this->em, $this->validator, $this->logger, 100);
+        $this->service = new CsvImportService(
+            $this->em,
+            $this->validator,
+            $this->logger,
+            $this->productConstructor,
+            100
+        );
     }
 
 
     //Test with default CSV File
     public function testDefaultCsvImport()
     {
-        //Validator should work 26 time, because there is 4 problem lines from 29
-        $this->validator
-            ->expects($this->exactly(25))
-            ->method("validate")
+        //Constructor should work 27 time, because there is 2 problem lines from 29
+        $this->productConstructor
+            ->expects($this->exactly(27))
+            ->method("constructProduct")
         ;
 
         //test-case should never run flush
@@ -92,10 +96,10 @@ class CsvImportServiceTest extends TestCase
         //only 2 lines of CSV are bad parsing, wrong count of columns
         $this->assertSame(2, $result["errors"]['parse_errors']);
 
-        //only 2 lines has bad entity constructor(P0007->empty stock count, P0015->Price is not number)
-        $this->assertSame(2, $result["errors"]['construct_errors']);
+        //Should not have effects at validation in Mock test, no responsibility
+        $this->assertSame(0, $result["errors"]['construct_errors']);
 
-        //Should not be effects at validation in Mock test
+        //Should not have effects at validation in Mock test, no responsibility
         $this->assertSame(0, $result["errors"]['validate_errors']);
     }
 
@@ -119,20 +123,11 @@ class CsvImportServiceTest extends TestCase
         //should be no Parsing errors
         $this->assertSame(0, $result["errors"]['parse_errors']);
 
-        //should be no constructor errors
+        //Should not have effects at validation in Mock test, no responsibility
         $this->assertSame(0, $result["errors"]['construct_errors']);
 
-        //Should not be effects at validation in Mock test
+        //Should not have effects at validation in Mock test, no responsibility
         $this->assertSame(0, $result["errors"]['validate_errors']);
-
-        //Should be 25 validated lines
-        $this->assertSame(25, $result["validated"]);
-
-        //Should be 25 total lines
-        $this->assertSame(25, $result["total"]);
-
-        //All rows from total should be validated
-        $this->assertSame($result["validated"], $result["total"]);
     }
 
     public function testFileNotFound()
@@ -158,5 +153,4 @@ class CsvImportServiceTest extends TestCase
         //return has to be null
         $this->assertSame(null, $result);
     }
-
 }

@@ -8,11 +8,8 @@
 
 namespace AppBundle\Entity;
 
-use AppBundle\Traits\ProductConstructor;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
-use Symfony\Component\Console\Style\SymfonyStyle;
-use Symfony\Component\Validator\Constraints\DateTime;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -23,8 +20,6 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class Product
 {
-
-    use ProductConstructor;
 
     /**
      * @var int
@@ -60,21 +55,21 @@ class Product
     private $productDescription;
 
     /**
-     * @var DateTime
+     * @var \DateTime
      *
      * @ORM\Column(name="dtmAdded", type="datetime", nullable=true)
      */
     private $dtmAdded=null;
 
     /**
-     * @var DateTime
+     * @var \DateTime
      *
      * @ORM\Column(name="dtmDiscontinued", type="datetime", nullable=true)
      */
     private $dtmDiscontinued=null;
 
     /**
-     * @var DateTime
+     * @var \DateTime
      *
      *
      * @ORM\Column(name="stmTimestamp", type="datetime", nullable=false)
@@ -84,8 +79,9 @@ class Product
     /**
      * @var int
      *
-     * @ORM\Column(name="intStock", type="integer", nullable=false)
+     * @ORM\Column(name="intStock", type="integer", nullable=false, options={"unsigned"=true})
      * @Assert\NotBlank()
+     * @Assert\GreaterThanOrEqual(0)
      * @Assert\Expression(
      *     "this.getStockSize() >= 10 or this.getPrice()>=5",
      *     message="Products price must be greater than 5.00, if Stock size is less than 10"
@@ -96,8 +92,14 @@ class Product
     /**
      * @var float
      *
-     * @ORM\Column(name="dcmPrice", precision=9, scale=2 ,type="decimal", nullable=false)
+     * @ORM\Column(name="dcmPrice",
+     *     precision=20,
+     *     scale=2,
+     *     type="decimal",
+     *     nullable=false,
+     *     columnDefinition="DECIMAL UNSIGNED NOT NULL")
      * @Assert\NotBlank()
+     * @Assert\GreaterThanOrEqual(0)
      * @Assert\LessThanOrEqual(1000)
      */
     private $price;
@@ -173,19 +175,19 @@ class Product
     }
 
     /**
-     * @return DateTime
+     * @return \DateTime
      */
-    public function getDtmAdded() : DateTime
+    public function getDtmAdded() : \DateTime
     {
         return $this->dtmAdded;
     }
 
     /**
-     * @param DateTime $dtmAdded
+     * @param \DateTime $dtmAdded
      *
      * @return Product
      */
-    public function setDtmAdded(DateTime $dtmAdded) : Product
+    public function setDtmAdded(\DateTime $dtmAdded) : Product
     {
         $this->dtmAdded = $dtmAdded;
 
@@ -193,9 +195,9 @@ class Product
     }
 
     /**
-     * @return DateTime
+     * @return \DateTime
      */
-    public function getDtmDiscontinued() : DateTime
+    public function getDtmDiscontinued() : \DateTime
     {
         return $this->dtmDiscontinued;
     }
@@ -213,19 +215,19 @@ class Product
     }
 
     /**
-     * @return DateTime
+     * @return \DateTime
      */
-    public function getStmTimestamp() : DateTime
+    public function getStmTimestamp() : \DateTime
     {
         return $this->stmTimestamp;
     }
 
     /**
-     * @param DateTime $stmTimestamp
+     * @param \DateTime $stmTimestamp
      *
      * @return Product
      */
-    public function setStmTimestamp(DateTime $stmTimestamp) : Product
+    public function setStmTimestamp(\DateTime $stmTimestamp) : Product
     {
         $this->stmTimestamp = $stmTimestamp;
 
@@ -265,7 +267,7 @@ class Product
      *
      * @return Product
      */
-    public function setPrice($price) : Product
+    public function setPrice(float $price) : Product
     {
         $this->price = $price;
 

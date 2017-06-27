@@ -1,7 +1,6 @@
 <?php
 namespace AppBundle\Command;
 
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -11,20 +10,6 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 class CsvImportCommand extends ContainerAwareCommand
 {
-
-    /**
-     * @var EntityManagerInterface
-     */
-    private $em;
-
-    const COLUMNS = 6;
-
-    public function __construct(EntityManagerInterface $em)
-    {
-        parent::__construct();
-
-        $this->em = $em;
-    }
 
     protected function configure()
     {

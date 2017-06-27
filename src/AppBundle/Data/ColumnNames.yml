@@ -1,0 +1,6 @@
+product_code: 'Product Code'
+product_name: 'Product Name'
+product_description: 'Product Description'
+stock_size: 'Stock'
+price: 'Cost in GBP'
+discontinued: 'Discontinued'
