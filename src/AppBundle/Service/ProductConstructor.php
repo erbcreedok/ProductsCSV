@@ -48,6 +48,7 @@ class ProductConstructor
             ->setStockSize((int)$stockSize)
             ->setPrice((float)$price)
             ->setDtmDiscontinued($discontinued=="yes")
+            ->setDtmAdded(new \DateTime())
         ;
 
         return $product;

@@ -9,16 +9,18 @@
 namespace AppBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as JMSSerializer;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="AppBundle\Entity\Repository\ProductRepository")
  * @ORM\Table(name="tblProductData")
  * @UniqueEntity("productCode")
  * @ORM\HasLifecycleCallbacks
+ * @JMSSerializer\ExclusionPolicy("all")
  */
-class Product
+class Product implements  \JsonSerializable
 {
 
     /**
@@ -27,6 +29,7 @@ class Product
      * @ORM\Column(name="intProductDataId", type="integer", length=10)
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
+     * @JMSSerializer\Expose
      */
     private $id;
 
@@ -35,6 +38,7 @@ class Product
      *
      * @ORM\Column(name="strProductCode", type="string", length=10, nullable=false, unique=true)
      * @Assert\NotBlank()
+     * @JMSSerializer\Expose
      */
     private $productCode;
 
@@ -43,6 +47,7 @@ class Product
      *
      * @ORM\Column(name="strProductName", type="string", length=50, nullable=false)
      * @Assert\NotBlank()
+     * @JMSSerializer\Expose
      */
     private $productName;
 
@@ -51,34 +56,34 @@ class Product
      *
      * @ORM\Column(name="strProductDesc", type="string", length=255, nullable=false)
      * @Assert\NotBlank()
+     * @JMSSerializer\Expose
      */
     private $productDescription;
 
     /**
      * @var \DateTime
-     *
      * @ORM\Column(name="dtmAdded", type="datetime", nullable=true)
+     * @JMSSerializer\Expose
      */
     private $dtmAdded=null;
 
     /**
      * @var \DateTime
-     *
      * @ORM\Column(name="dtmDiscontinued", type="datetime", nullable=true)
+     * @JMSSerializer\Expose
      */
     private $dtmDiscontinued=null;
 
     /**
      * @var \DateTime
-     *
-     *
      * @ORM\Column(name="stmTimestamp", type="datetime", nullable=false)
+     * @JMSSerializer\Expose
      */
     private $stmTimestamp;
 
     /**
      * @var int
-     *
+     * @JMSSerializer\Expose
      * @ORM\Column(name="intStock", type="integer", nullable=false, options={"unsigned"=true})
      * @Assert\NotBlank()
      * @Assert\GreaterThanOrEqual(0)
@@ -91,7 +96,7 @@ class Product
 
     /**
      * @var float
-     *
+     * @JMSSerializer\Expose
      * @ORM\Column(name="dcmPrice",
      *     precision=20,
      *     scale=2,
@@ -283,5 +288,20 @@ class Product
         $this->stmTimestamp = new \DateTime("now");
     }
 
+
+    function jsonSerialize()
+    {
+        return [
+            'id' => $this->id,
+            'product_name' => $this->productName,
+            'product_code' => $this->productCode,
+            'product_desc' => $this->productDescription,
+            'date_add' => $this->dtmAdded,
+            'date_disc' => $this->dtmDiscontinued,
+            'timestamp' => $this->stmTimestamp,
+            'stock' => $this->stockSize,
+            'price' => $this->price,
+        ];
+    }
 
 }
