@@ -14,6 +14,7 @@ use function Symfony\Component\Debug\Tests\testHeader;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Form\FormTypeInterface;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 
@@ -41,7 +42,7 @@ class ProductApiController extends FOSRestController
 
     /**
      * @param int $id
-     * @return array
+     * @return object
      * @Rest\Get("/products/{id}")
      */
     public function idAction(int $id) {
@@ -50,5 +51,89 @@ class ProductApiController extends FOSRestController
 
     }
 
+
+    /**
+     * @param Request $request
+     * @Rest\Post("/products/")
+     */
+    public function postAction(Request $request) {
+        $product = new Product();
+        $prName = $request->get('product_name');
+        $prCode = $request->get('product_code');
+        $prDesck = $request->get('product_description');
+//        $dtmAdded = $request->get('dtm_added');
+//        $timestamp = $request->get('stm_timestamp');
+        $stock = $request->get('stock_size');
+        $price = $request->get('price');
+
+        $product->setProductName($prName);
+        $product->setProductDescription($prDesck);
+        $product->setProductCode($prCode);
+        $product->setDtmAdded(new \DateTime());
+//        $product->setDtmDiscontinued($dtmDiscontinued);
+        $product->setStmTimestamp(new \DateTime());
+        $product->setStockSize($stock);
+        $product->setPrice($price);
+
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($product);
+        $em->flush();
+
+    }
+
+    /**
+     * @param $id
+     * @Rest\Delete("/products/{id}")
+     * @return View
+     */
+    public function deleteAction(int $id)
+    {
+      $data = new Product();
+      $em = $this->getDoctrine()->getManager();
+      $product = $this->getDoctrine()->getRepository('AppBundle:Product')->find($id);
+      if (empty($product)) {
+          throw new HttpException(Response::HTTP_NOT_FOUND, "Product not founded");
+      } else {
+        $em->remove($product);
+        $em->flush();
+      }
+
+    }
+    /**
+     * @param $id
+     * @param Request $request
+     * @Rest\Put("/products/{id}")
+     *
+     */
+    public function updateAction(int $id, Request $request)
+    {
+        $data = new Product();
+
+        $prName = $request->get('product_name');
+        $prCode = $request->get('product_code');
+        $prDesck = $request->get('product_description');
+        //        $dtmAdded = $request->get('dtm_added');
+        //        $timestamp = $request->get('stm_timestamp');
+        $stock = $request->get('stock_size');
+        $price = $request->get('price');
+
+        $em = $this->getDoctrine()->getManager();
+        $product = $this->getDoctrine()->getRepository('AppBundle:Product')->find($id);
+
+        if (empty($product)) {
+            throw new HttpException(Response::HTTP_NOT_FOUND, "Product not founded");
+        } else {
+            $product->setProductName($prName);
+            $product->setProductDescription($prDesck);
+            $product->setProductCode($prCode);
+//        $product->setDtmDiscontinued($dtmDiscontinued);
+            $product->setStockSize($stock);
+            $product->setPrice($price);
+            $em->flush();
+            throw new HttpException(Response::HTTP_OK, "Product Updated");
+        }
+
+
+    }
 
 }
