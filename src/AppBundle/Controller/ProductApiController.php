@@ -39,4 +39,16 @@ class ProductApiController extends FOSRestController
     }
 
 
+    /**
+     * @param int $id
+     * @return array
+     * @Rest\Get("/products/{id}")
+     */
+    public function idAction(int $id) {
+        $singleProduct = $this->getDoctrine()->getRepository('AppBundle:Product')->find($id);
+        return $singleProduct;
+
+    }
+
+
 }
