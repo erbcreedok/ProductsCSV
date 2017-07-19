@@ -55,6 +55,8 @@ class ProductApiController extends FOSRestController
     /**
      * @param Request $request
      * @Rest\Post("/products/")
+     * @return string
+     *
      */
     public function postAction(Request $request) {
         $product = new Product();
@@ -66,7 +68,6 @@ class ProductApiController extends FOSRestController
         $stock = $request->get('stock_size');
         $price = $request->get('price');
 
-        $product->setProductName($prName);
         $product->setProductDescription($prDesck);
         $product->setProductCode($prCode);
         $product->setDtmAdded(new \DateTime());
@@ -74,10 +75,14 @@ class ProductApiController extends FOSRestController
         $product->setStmTimestamp(new \DateTime());
         $product->setStockSize($stock);
         $product->setPrice($price);
+        $product->setProductName($prName);
 
         $em = $this->getDoctrine()->getManager();
         $em->persist($product);
         $em->flush();
+
+        return $product;
+
 
     }
 
@@ -135,5 +140,31 @@ class ProductApiController extends FOSRestController
 
 
     }
+
+    /**
+     * @param Request $request
+     * @return mixed
+     * @Rest\Post("/products/filters/")
+     */
+    public function filtersAction(Request $request)
+    {
+
+        $filters = [
+            'name' => $request->get('productName'),
+            'code' => $request->get('productCode'),
+            'description' => $request->get('productDescription'),
+            'cost' => $request->get('cost'),
+            'discontinued' => $request->get('discontinued'),
+            'stock' => $request->get('stock'),
+        ];
+
+        return $this->getDoctrine()->getRepository('AppBundle:Product')->findBy([
+           'productCode'  => 'P000'
+        ]);
+        return $this->getDoctrine()->getRepository('AppBundle:Product')->createFilterQuery($filters);
+
+    }
+
+
 
 }
