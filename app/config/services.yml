@@ -43,13 +43,3 @@ services:
     constructor.product:
         class: AppBundle\Service\ProductConstructor
         public: true
-
-    product.constructor:
-        class: AppBundle\Service\ProductConstructorService
-        public: true
-
-    crv.doctrine_entity_repository.product:
-            class: Doctrine\ORM\EntityRepository
-            factory: ["@doctrine", getRepository]
-            arguments:
-                - AppBundle\Entity\Product
