@@ -33,7 +33,7 @@ class ProductApiController extends FOSRestController
      * @Rest\Get("/products")
      */
 
-    public function cgetAction() {
+    public function getProducts() {
           $products = $this->getDoctrine()->getRepository('AppBundle:Product')->findAll();
           return $products;
 //          return $this->get('crv.doctrine_entity_repository.product')->createFindAllQuery()->getResult();
@@ -46,7 +46,7 @@ class ProductApiController extends FOSRestController
      * @return object
      * @Rest\Get("/products/{id}")
      */
-    public function idAction(int $id) {
+    public function getProduct(int $id) {
         $singleProduct = $this->getDoctrine()->getRepository('AppBundle:Product')->find($id);
         return $singleProduct;
 
@@ -59,7 +59,7 @@ class ProductApiController extends FOSRestController
      * @return string
      *
      */
-    public function postAction(Request $request) {
+    public function addProduct(Request $request) {
 //        $prName = $request->get('product_name');
 //        $prDesck = $request->get('product_description');
 //        $prCode = $request->get('product_code');
@@ -99,7 +99,7 @@ class ProductApiController extends FOSRestController
      * @Rest\Delete("/products/{id}")
      * @return View
      */
-    public function deleteAction(int $id)
+    public function deleteProduct(int $id)
     {
       $data = new Product();
       $em = $this->getDoctrine()->getManager();
@@ -118,7 +118,7 @@ class ProductApiController extends FOSRestController
      * @Rest\Put("/products/{id}")
      *
      */
-    public function updateAction(int $id, Request $request)
+    public function updateProduct(int $id, Request $request)
     {
         $data = new Product();
 
@@ -152,9 +152,9 @@ class ProductApiController extends FOSRestController
     /**
      * @param Request $request
      * @return mixed
-     * @Rest\Post("/products/filters/")
+     * @Rest\Post("/products/get/")
      */
-    public function filtersAction(Request $request)
+    public function getProductsByOptions(Request $request)
     {
 
         $filters = $request->get('filters');
