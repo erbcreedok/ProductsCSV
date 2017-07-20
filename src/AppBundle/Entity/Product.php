@@ -9,14 +9,16 @@
 namespace AppBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as JMSSerializer;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="AppBundle\Entity\Repository\ProductRepository")
  * @ORM\Table(name="tblProductData")
  * @UniqueEntity("productCode")
  * @ORM\HasLifecycleCallbacks
+ * @JMSSerializer\ExclusionPolicy("all")
  */
 class Product
 {
@@ -27,6 +29,8 @@ class Product
      * @ORM\Column(name="intProductDataId", type="integer", length=10)
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
+     * @JMSSerializer\Expose
+     * @JMSSerializer\SerializedName("id")
      */
     private $id;
 
@@ -35,6 +39,8 @@ class Product
      *
      * @ORM\Column(name="strProductCode", type="string", length=10, nullable=false, unique=true)
      * @Assert\NotBlank()
+     * @JMSSerializer\Expose
+     * @JMSSerializer\SerializedName("productCode")
      */
     private $productCode;
 
@@ -43,6 +49,8 @@ class Product
      *
      * @ORM\Column(name="strProductName", type="string", length=50, nullable=false)
      * @Assert\NotBlank()
+     * @JMSSerializer\Expose
+     * @JMSSerializer\SerializedName("productName")
      */
     private $productName;
 
@@ -51,34 +59,39 @@ class Product
      *
      * @ORM\Column(name="strProductDesc", type="string", length=255, nullable=false)
      * @Assert\NotBlank()
+     * @JMSSerializer\Expose
+     * @JMSSerializer\SerializedName("productDescription")
      */
     private $productDescription;
 
     /**
      * @var \DateTime
-     *
      * @ORM\Column(name="dtmAdded", type="datetime", nullable=true)
+     * @JMSSerializer\Expose
+     * @JMSSerializer\SerializedName("dateAdded")
      */
     private $dtmAdded=null;
 
     /**
      * @var \DateTime
-     *
      * @ORM\Column(name="dtmDiscontinued", type="datetime", nullable=true)
+     * @JMSSerializer\Expose
+     * @JMSSerializer\SerializedName("discontinued")
      */
     private $dtmDiscontinued=null;
 
     /**
      * @var \DateTime
-     *
-     *
      * @ORM\Column(name="stmTimestamp", type="datetime", nullable=false)
+     * @JMSSerializer\Expose
+     * @JMSSerializer\SerializedName("timestamp")
      */
     private $stmTimestamp;
 
     /**
      * @var int
-     *
+     * @JMSSerializer\Expose
+     * @JMSSerializer\SerializedName("stock")
      * @ORM\Column(name="intStock", type="integer", nullable=false, options={"unsigned"=true})
      * @Assert\NotBlank()
      * @Assert\GreaterThanOrEqual(0)
@@ -91,7 +104,8 @@ class Product
 
     /**
      * @var float
-     *
+     * @JMSSerializer\Expose
+     * @JMSSerializer\SerializedName("cost")
      * @ORM\Column(name="dcmPrice",
      *     precision=20,
      *     scale=2,
@@ -103,7 +117,6 @@ class Product
      * @Assert\LessThanOrEqual(1000)
      */
     private $price;
-
 
     /**
      * @return int
@@ -282,6 +295,5 @@ class Product
     {
         $this->stmTimestamp = new \DateTime("now");
     }
-
 
 }

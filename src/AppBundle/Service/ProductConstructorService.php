@@ -1,30 +1,26 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: admin
- * Date: 23.06.17
- * Time: 19:58
+ * User: Assanali
+ * Date: 7/20/17
+ * Time: 14:06
  */
 
 namespace AppBundle\Service;
-
 use AppBundle\Entity\Product;
 use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\Yaml\Yaml;
 
-class ProductConstructor
+class ProductConstructorService
 {
     public function constructProduct(array $data) : Product
     {
-
-        $columnTitles = Yaml::parse(file_get_contents(__DIR__."/../Data/ColumnNames.yml"));
-
-        $productCode = $data[$columnTitles['product_code']];
-        $productName = $data[$columnTitles['product_name']];
-        $productDesc = $data[$columnTitles['product_description']];
-        $stockSize = $data[$columnTitles['stock_size']];
-        $price = $data[$columnTitles['price']];
-        $discontinued = $data[$columnTitles['discontinued']];
+        $productCode = $data['productCode'];
+        $productName = $data['productName'];
+        $productDesc = $data['productDescription'];
+        $stockSize = $data['stock'];
+        $price = $data['cost'];
+        $discontinued = $data['isDiscontinued'];
 
 
         foreach ($data as $index => $value) {
@@ -47,11 +43,10 @@ class ProductConstructor
             ->setProductDescription($productDesc)
             ->setStockSize((int)$stockSize)
             ->setPrice((float)$price)
-            ->setDtmDiscontinued($discontinued=="yes")
-            ->setDtmAdded(new \DateTime())
-        ;
+            ->setDtmDiscontinued($discontinued)
+            ->setDtmAdded(new \DateTime());
 
         return $product;
-    }
 
+    }
 }
