@@ -4,6 +4,7 @@
 namespace AppBundle\Controller;
 
 use AppBundle\Entity\Product;
+use AppBundle\Entity\Repository\ProductRepository;
 use FOS\RestBundle\Controller\Annotations\View;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\View\RouteRedirectView;
@@ -158,10 +159,8 @@ class ProductApiController extends FOSRestController
             'stock' => $request->get('stock'),
         ];
 
-        return $this->getDoctrine()->getRepository('AppBundle:Product')->findBy([
-           'productCode'  => 'P000'
-        ]);
         return $this->getDoctrine()->getRepository('AppBundle:Product')->createFilterQuery($filters);
+
 
     }
 
