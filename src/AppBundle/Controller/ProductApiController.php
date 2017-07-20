@@ -158,7 +158,9 @@ class ProductApiController extends FOSRestController
     {
 
         $filters = $request->get('filters');
-        return $this->getDoctrine()->getRepository('AppBundle:Product')->createFilterQuery($filters);
+        $order = $request->get('order');
+        $limit = $request->get('limit');
+        return $this->getDoctrine()->getRepository('AppBundle:Product')->createFilterQuery($filters, $order, $limit);
 
 
     }
