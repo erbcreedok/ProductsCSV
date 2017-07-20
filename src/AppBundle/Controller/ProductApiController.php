@@ -60,27 +60,34 @@ class ProductApiController extends FOSRestController
      *
      */
     public function postAction(Request $request) {
-        $product = new Product();
-        $prName = $request->get('product_name');
-        $prCode = $request->get('product_code');
-        $prDesck = $request->get('product_description');
-//        $dtmAdded = $request->get('dtm_added');
-//        $timestamp = $request->get('stm_timestamp');
-        $stock = $request->get('stock_size');
-        $price = $request->get('price');
+//        $prName = $request->get('product_name');
+//        $prDesck = $request->get('product_description');
+//        $prCode = $request->get('product_code');
+////        $dtmAdded = $request->get('dtm_added');
+////        $timestamp = $request->get('stm_timestamp');
+//        $stock = $request->get('stock_size');
+//        $price = $request->get('price');
+//
+//        $product->setProductDescription($prDesck);
+//        $product->setProductCode($prCode);
+//        $product->setDtmAdded(new \DateTime());
+////        $product->setDtmDiscontinued($dtmDiscontinued);
+//        $product->setStmTimestamp(new \DateTime());
+//        $product->setStockSize($stock);
+//        $product->setPrice($price);
+//        $product->setProductName($prName);
+//
+//        $em = $this->getDoctrine()->getManager();
+//        $em->persist($product);
+//        $em->flush();
 
-        $product->setProductDescription($prDesck);
-        $product->setProductCode($prCode);
-        $product->setDtmAdded(new \DateTime());
-//        $product->setDtmDiscontinued($dtmDiscontinued);
-        $product->setStmTimestamp(new \DateTime());
-        $product->setStockSize($stock);
-        $product->setPrice($price);
-        $product->setProductName($prName);
+        $productConstructor = $this->get('product.constructor');
+        $product = $productConstructor->constructProduct($request->get('product'));
 
         $em = $this->getDoctrine()->getManager();
         $em->persist($product);
         $em->flush();
+
 
         return $product;
 
@@ -150,15 +157,7 @@ class ProductApiController extends FOSRestController
     public function filtersAction(Request $request)
     {
 
-        $filters = [
-            'name' => $request->get('productName'),
-            'code' => $request->get('productCode'),
-            'description' => $request->get('productDescription'),
-            'cost' => $request->get('cost'),
-            'discontinued' => $request->get('discontinued'),
-            'stock' => $request->get('stock'),
-        ];
-
+        $filters = $request->get('filters');
         return $this->getDoctrine()->getRepository('AppBundle:Product')->createFilterQuery($filters);
 
 

@@ -13,9 +13,9 @@ class ProductRepository extends EntityRepository
      */
     public function createFilterQuery(array $filters) : array
     {
-        $prName = $filters['name'];
-        $prCode = $filters['code'];
-        $prDescription = $filters['description'];
+        $prName = $filters['productName'];
+        $prCode = $filters['productCode'];
+        $prDescription = $filters['productDescription'];
         $prCostFrom = $filters['cost']['from'];
         $prCostTo = $filters['cost']['to'];
         $stockFrom = $filters['stock']['from'];
