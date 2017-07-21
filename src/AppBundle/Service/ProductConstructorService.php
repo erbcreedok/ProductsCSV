@@ -15,8 +15,9 @@ class ProductConstructorService
 {
     public function constructProduct(array $data) : Product
     {
-        $productCode = $data['productCode'];
+
         $productName = $data['productName'];
+        $productCode = $data['productCode'];
         $productDesc = $data['productDescription'];
         $stockSize = $data['stock'];
         $price = $data['cost'];
