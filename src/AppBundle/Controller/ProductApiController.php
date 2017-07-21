@@ -26,18 +26,14 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
  */
 class ProductApiController extends FOSRestController
 {
-
-
     /**
      * @return array
      * @Rest\Get("/products")
      */
 
     public function getProducts() {
-          $products = $this->getDoctrine()->getRepository('AppBundle:Product')->findAll();
+          $products = $this->getDoctrine()->getRepository('AppBundle:Product')->findBy([],['productCode'=>'ASC'],20);
           return $products;
-//          return $this->get('crv.doctrine_entity_repository.product')->createFindAllQuery()->getResult();
-
     }
 
 
@@ -60,27 +56,6 @@ class ProductApiController extends FOSRestController
      *
      */
     public function addProduct(Request $request) {
-//        $prName = $request->get('product_name');
-//        $prDesck = $request->get('product_description');
-//        $prCode = $request->get('product_code');
-////        $dtmAdded = $request->get('dtm_added');
-////        $timestamp = $request->get('stm_timestamp');
-//        $stock = $request->get('stock_size');
-//        $price = $request->get('price');
-//
-//        $product->setProductDescription($prDesck);
-//        $product->setProductCode($prCode);
-//        $product->setDtmAdded(new \DateTime());
-////        $product->setDtmDiscontinued($dtmDiscontinued);
-//        $product->setStmTimestamp(new \DateTime());
-//        $product->setStockSize($stock);
-//        $product->setPrice($price);
-//        $product->setProductName($prName);
-//
-//        $em = $this->getDoctrine()->getManager();
-//        $em->persist($product);
-//        $em->flush();
-
         $productConstructor = $this->get('product.constructor');
         $product = $productConstructor->constructProduct($request->get('product'));
 
@@ -120,28 +95,22 @@ class ProductApiController extends FOSRestController
      */
     public function updateProduct(int $id, Request $request)
     {
-        $data = new Product();
+        $productConstructor = $this->get('product.constructor');
 
-        $prName = $request->get('product_name');
-        $prCode = $request->get('product_code');
-        $prDesck = $request->get('product_description');
-        //        $dtmAdded = $request->get('dtm_added');
-        //        $timestamp = $request->get('stm_timestamp');
-        $stock = $request->get('stock_size');
-        $price = $request->get('price');
-
+        $newProduct = $productConstructor->constructProduct($request->get('product'));
         $em = $this->getDoctrine()->getManager();
         $product = $this->getDoctrine()->getRepository('AppBundle:Product')->find($id);
 
         if (empty($product)) {
             throw new HttpException(Response::HTTP_NOT_FOUND, "Product not founded");
         } else {
-            $product->setProductName($prName);
-            $product->setProductDescription($prDesck);
-            $product->setProductCode($prCode);
-//        $product->setDtmDiscontinued($dtmDiscontinued);
-            $product->setStockSize($stock);
-            $product->setPrice($price);
+            $product
+                ->setProductName($newProduct->getProductName())
+                ->setProductCode($newProduct->getProductCode())
+                ->setProductDescription($newProduct->getProductDescription())
+                ->setStockSize($newProduct->getStockSize())
+                ->setPrice($newProduct->getPrice())
+                ->setDtmDiscontinued($newProduct->isDiscontinued());
             $em->flush();
             throw new HttpException(Response::HTTP_OK, "Product Updated");
         }
@@ -156,9 +125,10 @@ class ProductApiController extends FOSRestController
      */
     public function getProductsByOptions(Request $request)
     {
-
         $filters = $request->get('filters');
-        return $this->getDoctrine()->getRepository('AppBundle:Product')->createFilterQuery($filters);
+        $order = $request->get('order');
+        $limit = $request->get('limit');
+        return $this->getDoctrine()->getRepository('AppBundle:Product')->createFilterQuery($filters, $order, $limit);
 
 
     }

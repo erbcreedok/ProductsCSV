@@ -287,6 +287,11 @@ class Product
         return $this;
     }
 
+    public function isDiscontinued() : bool
+    {
+        return $this->dtmDiscontinued ? true : false;
+    }
+
     /**
      * @ORM\PrePersist
      * @ORM\PreUpdate
