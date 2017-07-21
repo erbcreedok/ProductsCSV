@@ -26,9 +26,14 @@ class ProductRepository extends EntityRepository
             $query = $this->order($order, $query);
         }
 
-        if ($limit) {
-            $query = $this->limit($limit, $query);
+        if (!$limit) {
+            $limit = [
+                'offset' => 0,
+                'limit' => 20
+            ];
         }
+        $query = $this->limit($limit, $query);
+
 
         return  $query->getQuery()->getResult();
 
