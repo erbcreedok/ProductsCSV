@@ -1,6 +1,5 @@
 <?php
 
-
 namespace AppBundle\Controller;
 
 use AppBundle\Entity\Product;
@@ -32,12 +31,10 @@ class ProductApiController extends FOSRestController
      * @return array
      * @Rest\Get("/products")
      */
-
-    public function cgetAction() {
+    public function getProducts()
+    {
           $products = $this->getDoctrine()->getRepository('AppBundle:Product')->findAll();
           return $products;
-//          return $this->get('crv.doctrine_entity_repository.product')->createFindAllQuery()->getResult();
-
     }
 
 
@@ -46,10 +43,10 @@ class ProductApiController extends FOSRestController
      * @return object
      * @Rest\Get("/products/{id}")
      */
-    public function idAction(int $id) {
+    public function getProduct(int $id)
+    {
         $singleProduct = $this->getDoctrine()->getRepository('AppBundle:Product')->find($id);
         return $singleProduct;
-
     }
 
 
@@ -59,32 +56,18 @@ class ProductApiController extends FOSRestController
      * @return string
      *
      */
-    public function postAction(Request $request) {
-        $product = new Product();
-        $prName = $request->get('product_name');
-        $prCode = $request->get('product_code');
-        $prDesck = $request->get('product_description');
-//        $dtmAdded = $request->get('dtm_added');
-//        $timestamp = $request->get('stm_timestamp');
-        $stock = $request->get('stock_size');
-        $price = $request->get('price');
+    public function addProduct(Request $request)
+    {
 
-        $product->setProductDescription($prDesck);
-        $product->setProductCode($prCode);
-        $product->setDtmAdded(new \DateTime());
-//        $product->setDtmDiscontinued($dtmDiscontinued);
-        $product->setStmTimestamp(new \DateTime());
-        $product->setStockSize($stock);
-        $product->setPrice($price);
-        $product->setProductName($prName);
+        $productConstructor = $this->get('product.constructor');
+        $product = $productConstructor->constructProduct($request->get('product'));
 
         $em = $this->getDoctrine()->getManager();
         $em->persist($product);
         $em->flush();
 
+
         return $product;
-
-
     }
 
     /**
@@ -92,18 +75,16 @@ class ProductApiController extends FOSRestController
      * @Rest\Delete("/products/{id}")
      * @return View
      */
-    public function deleteAction(int $id)
+    public function deleteProduct(int $id)
     {
-      $data = new Product();
-      $em = $this->getDoctrine()->getManager();
-      $product = $this->getDoctrine()->getRepository('AppBundle:Product')->find($id);
-      if (empty($product)) {
-          throw new HttpException(Response::HTTP_NOT_FOUND, "Product not founded");
-      } else {
-        $em->remove($product);
-        $em->flush();
-      }
-
+        $em = $this->getDoctrine()->getManager();
+        $product = $this->getDoctrine()->getRepository('AppBundle:Product')->find($id);
+        if (empty($product)) {
+            throw new HttpException(Response::HTTP_NOT_FOUND, "Product not founded");
+        } else {
+            $em->remove($product);
+            $em->flush();
+        }
     }
     /**
      * @param $id
@@ -111,7 +92,7 @@ class ProductApiController extends FOSRestController
      * @Rest\Put("/products/{id}")
      *
      */
-    public function updateAction(int $id, Request $request)
+    public function updateProduct(int $id, Request $request)
     {
         $data = new Product();
 
@@ -138,30 +119,17 @@ class ProductApiController extends FOSRestController
             $em->flush();
             throw new HttpException(Response::HTTP_OK, "Product Updated");
         }
-
-
     }
 
     /**
      * @param Request $request
-     * @return mixed
-     * @Rest\Post("/products/filters/")
+     * @Rest\Get("/products/get/")
      */
     public function filtersAction(Request $request)
     {
-
-        $filters = [
-            'name' => $request->get('productName'),
-            'code' => $request->get('productCode'),
-            'description' => $request->get('productDescription'),
-            'cost' => $request->get('cost'),
-            'discontinued' => $request->get('discontinued'),
-            'stock' => $request->get('stock'),
-        ];
-
+        $filters = json_decode($request->get('filters'), true);
+//        return $filters;
         return $this->getDoctrine()->getRepository('AppBundle:Product')->createFilterQuery($filters);
-
-
     }
 
 
