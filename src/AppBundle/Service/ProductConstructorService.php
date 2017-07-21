@@ -7,6 +7,7 @@
  */
 
 namespace AppBundle\Service;
+
 use AppBundle\Entity\Product;
 use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\Yaml\Yaml;
@@ -15,7 +16,6 @@ class ProductConstructorService
 {
     public function constructProduct(array $data) : Product
     {
-
         $productName = $data['productName'];
         $productCode = $data['productCode'];
         $productDesc = $data['productDescription'];

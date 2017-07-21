@@ -1,6 +1,5 @@
 <?php
 
-
 namespace AppBundle\Controller;
 
 use AppBundle\Entity\Product;
@@ -27,11 +26,12 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 class ProductApiController extends FOSRestController
 {
     /**
+     * @param Request $request
      * @return array
      * @Rest\Get("/products")
      */
-
-    public function getProducts(Request $request) {
+    public function getProducts(Request $request)
+    {
 //          $products = $this->getDoctrine()->getRepository('AppBundle:Product')->findBy([],['productCode'=>'ASC'],20);
 //          return $products;
 
@@ -47,12 +47,11 @@ class ProductApiController extends FOSRestController
      * @return object
      * @Rest\Get("/products/{id}")
      */
-    public function getProduct(int $id) {
+    public function getProduct(int $id)
+    {
         $singleProduct = $this->getDoctrine()->getRepository('AppBundle:Product')->find($id);
         return $singleProduct;
-
     }
-
 
     /**
      * @param Request $request
@@ -60,7 +59,8 @@ class ProductApiController extends FOSRestController
      * @return string
      *
      */
-    public function addProduct(Request $request) {
+    public function addProduct(Request $request)
+    {
         $productConstructor = $this->get('product.constructor');
         $product = $productConstructor->constructProduct($request->get('product'));
 
@@ -68,10 +68,7 @@ class ProductApiController extends FOSRestController
         $em->persist($product);
         $em->flush();
 
-
         return $product;
-
-
     }
 
     /**
@@ -81,17 +78,16 @@ class ProductApiController extends FOSRestController
      */
     public function deleteProduct(int $id)
     {
-      $data = new Product();
-      $em = $this->getDoctrine()->getManager();
-      $product = $this->getDoctrine()->getRepository('AppBundle:Product')->find($id);
-      if (empty($product)) {
-          throw new HttpException(Response::HTTP_NOT_FOUND, "Product not founded");
-      } else {
-        $em->remove($product);
-        $em->flush();
-      }
-
+        $em = $this->getDoctrine()->getManager();
+        $product = $this->getDoctrine()->getRepository('AppBundle:Product')->find($id);
+        if (empty($product)) {
+            throw new HttpException(Response::HTTP_NOT_FOUND, "Product not founded");
+        } else {
+            $em->remove($product);
+            $em->flush();
+        }
     }
+
     /**
      * @param $id
      * @param Request $request
@@ -119,8 +115,6 @@ class ProductApiController extends FOSRestController
             $em->flush();
             throw new HttpException(Response::HTTP_OK, "Product Updated");
         }
-
-
     }
 
     /**
@@ -134,8 +128,6 @@ class ProductApiController extends FOSRestController
         $order = $request->get('order');
         $limit = $request->get('limit');
         return $this->getDoctrine()->getRepository('AppBundle:Product')->createFilterQuery($filters, $order, $limit);
-
-
     }
 
 

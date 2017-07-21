@@ -287,6 +287,9 @@ class Product
         return $this;
     }
 
+    /**
+     * @return bool
+     */
     public function isDiscontinued() : bool
     {
         return $this->dtmDiscontinued ? true : false;
@@ -300,5 +303,4 @@ class Product
     {
         $this->stmTimestamp = new \DateTime("now");
     }
-
 }

@@ -5,7 +5,6 @@ namespace AppBundle\Entity\Repository;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\QueryBuilder;
 
-
 class ProductRepository extends EntityRepository
 {
     /**
@@ -14,13 +13,12 @@ class ProductRepository extends EntityRepository
      * @param $limit
      * @return array
      */
-    public function createFilterQuery( $filters,  $order,  $limit) : array
+    public function createFilterQuery($filters, $order, $limit) : array
     {
-
         $query = $this->_em->getRepository('AppBundle:Product')->createQueryBuilder('p');
 
         if ($filters) {
-          $query = $this->filter($filters, $query);
+            $query = $this->filter($filters, $query);
         }
         if ($order) {
             $query = $this->order($order, $query);
@@ -36,10 +34,9 @@ class ProductRepository extends EntityRepository
 
 
         return  $query->getQuery()->getResult();
-
     }
 
-    public function filter (array $filters, QueryBuilder $query) : QueryBuilder
+    public function filter(array $filters, QueryBuilder $query) : QueryBuilder
     {
         $prName = $filters['productName'];
         $prCode = $filters['productCode'];
@@ -81,15 +78,15 @@ class ProductRepository extends EntityRepository
         return $query;
     }
 
-    public function order (array $order, QueryBuilder $query) : QueryBuilder
+    public function order(array $order, QueryBuilder $query) : QueryBuilder
     {
-        $query->orderBy('p.'.$order['sort'],$order['order'] ? 'ASC' : 'DESC')
+        $query->orderBy('p.'.$order['sort'], $order['order'] ? 'ASC' : 'DESC')
         ;
 
         return $query;
     }
 
-    public function limit (array $limit, QueryBuilder $query) : QueryBuilder
+    public function limit(array $limit, QueryBuilder $query) : QueryBuilder
     {
         $query
             ->setFirstResult($limit['offset'] ? $limit['offset'] : 0)
