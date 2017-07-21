@@ -31,9 +31,14 @@ class ProductApiController extends FOSRestController
      * @Rest\Get("/products")
      */
 
-    public function getProducts() {
-          $products = $this->getDoctrine()->getRepository('AppBundle:Product')->findBy([],['productCode'=>'ASC'],20);
-          return $products;
+    public function getProducts(Request $request) {
+//          $products = $this->getDoctrine()->getRepository('AppBundle:Product')->findBy([],['productCode'=>'ASC'],20);
+//          return $products;
+
+        $filters = json_decode($request->get('filters'), true);
+        $order = json_decode($request->get('order'), true);
+        $limit = json_decode($request->get('limit'), true);
+        return $this->getDoctrine()->getRepository('AppBundle:Product')->createFilterQuery($filters, $order, $limit);
     }
 
 
