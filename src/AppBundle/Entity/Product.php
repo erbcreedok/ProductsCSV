@@ -288,6 +288,14 @@ class Product
     }
 
     /**
+     * @return bool
+     */
+    public function isDiscontinued() : bool
+    {
+        return $this->dtmDiscontinued ? true : false;
+    }
+
+    /**
      * @ORM\PrePersist
      * @ORM\PreUpdate
      */
@@ -295,5 +303,4 @@ class Product
     {
         $this->stmTimestamp = new \DateTime("now");
     }
-
 }

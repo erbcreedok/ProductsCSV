@@ -25,16 +25,20 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
  */
 class ProductApiController extends FOSRestController
 {
-
-
     /**
+     * @param Request $request
      * @return array
      * @Rest\Get("/products")
      */
-    public function getProducts()
+    public function getProducts(Request $request)
     {
-          $products = $this->getDoctrine()->getRepository('AppBundle:Product')->findAll();
-          return $products;
+//          $products = $this->getDoctrine()->getRepository('AppBundle:Product')->findBy([],['productCode'=>'ASC'],20);
+//          return $products;
+
+        $filters = json_decode($request->get('filters'), true);
+        $order = json_decode($request->get('order'), true);
+        $limit = json_decode($request->get('limit'), true);
+        return $this->getDoctrine()->getRepository('AppBundle:Product')->createFilterQuery($filters, $order, $limit);
     }
 
 
@@ -49,7 +53,6 @@ class ProductApiController extends FOSRestController
         return $singleProduct;
     }
 
-
     /**
      * @param Request $request
      * @Rest\Post("/products/")
@@ -58,14 +61,12 @@ class ProductApiController extends FOSRestController
      */
     public function addProduct(Request $request)
     {
-
         $productConstructor = $this->get('product.constructor');
         $product = $productConstructor->constructProduct($request->get('product'));
 
         $em = $this->getDoctrine()->getManager();
         $em->persist($product);
         $em->flush();
-
 
         return $product;
     }
@@ -86,6 +87,7 @@ class ProductApiController extends FOSRestController
             $em->flush();
         }
     }
+
     /**
      * @param $id
      * @param Request $request
@@ -94,28 +96,22 @@ class ProductApiController extends FOSRestController
      */
     public function updateProduct(int $id, Request $request)
     {
-        $data = new Product();
+        $productConstructor = $this->get('product.constructor');
 
-        $prName = $request->get('product_name');
-        $prCode = $request->get('product_code');
-        $prDesck = $request->get('product_description');
-        //        $dtmAdded = $request->get('dtm_added');
-        //        $timestamp = $request->get('stm_timestamp');
-        $stock = $request->get('stock_size');
-        $price = $request->get('price');
-
+        $newProduct = $productConstructor->constructProduct($request->get('product'));
         $em = $this->getDoctrine()->getManager();
         $product = $this->getDoctrine()->getRepository('AppBundle:Product')->find($id);
 
         if (empty($product)) {
             throw new HttpException(Response::HTTP_NOT_FOUND, "Product not founded");
         } else {
-            $product->setProductName($prName);
-            $product->setProductDescription($prDesck);
-            $product->setProductCode($prCode);
-//        $product->setDtmDiscontinued($dtmDiscontinued);
-            $product->setStockSize($stock);
-            $product->setPrice($price);
+            $product
+                ->setProductName($newProduct->getProductName())
+                ->setProductCode($newProduct->getProductCode())
+                ->setProductDescription($newProduct->getProductDescription())
+                ->setStockSize($newProduct->getStockSize())
+                ->setPrice($newProduct->getPrice())
+                ->setDtmDiscontinued($newProduct->isDiscontinued());
             $em->flush();
             throw new HttpException(Response::HTTP_OK, "Product Updated");
         }
@@ -123,13 +119,15 @@ class ProductApiController extends FOSRestController
 
     /**
      * @param Request $request
-     * @Rest\Get("/products/get/")
+     * @return mixed
+     * @Rest\Post("/products/get/")
      */
-    public function filtersAction(Request $request)
+    public function getProductsByOptions(Request $request)
     {
-        $filters = json_decode($request->get('filters'), true);
-//        return $filters;
-        return $this->getDoctrine()->getRepository('AppBundle:Product')->createFilterQuery($filters);
+        $filters = $request->get('filters');
+        $order = $request->get('order');
+        $limit = $request->get('limit');
+        return $this->getDoctrine()->getRepository('AppBundle:Product')->createFilterQuery($filters, $order, $limit);
     }
 
 
