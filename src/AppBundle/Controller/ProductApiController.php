@@ -9,6 +9,7 @@ use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\View\RouteRedirectView;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Routing\ClassResourceInterface;
+use JMS\Serializer\Tests\Fixtures\Price;
 use Nelmio\ApiDocBundle\ApiDocGenerator;
 use function Symfony\Component\Debug\Tests\testHeader;
 use Symfony\Component\HttpFoundation\Request;
@@ -38,7 +39,10 @@ class ProductApiController extends FOSRestController
         $filters = json_decode($request->get('filters'), true);
         $order = json_decode($request->get('order'), true);
         $limit = json_decode($request->get('limit'), true);
-        return $this->getDoctrine()->getRepository('AppBundle:Product')->createFilterQuery($filters, $order, $limit);
+        return [
+            "products" => $this->getDoctrine()->getRepository('AppBundle:Product')->createFilterQuery($filters, $order, $limit),
+            "count" => $this->getDoctrine()->getRepository('AppBundle:Product')->count($filters)
+        ];
     }
 
 
@@ -92,18 +96,18 @@ class ProductApiController extends FOSRestController
      * @param $id
      * @param Request $request
      * @Rest\Put("/products/{id}")
-     *
+     * @return Product
      */
-    public function updateProduct(int $id, Request $request)
+    public function updateProduct(int $id, Request $request) : Product
     {
         $productConstructor = $this->get('product.constructor');
 
         $newProduct = $productConstructor->constructProduct($request->get('product'));
         $em = $this->getDoctrine()->getManager();
-        $product = $this->getDoctrine()->getRepository('AppBundle:Product')->find($id);
+        $product = $this->getDoctrine()->getRepository(Product::class)->find($id);
 
         if (empty($product)) {
-            throw new HttpException(Response::HTTP_NOT_FOUND, "Product not founded");
+            return null;
         } else {
             $product
                 ->setProductName($newProduct->getProductName())
@@ -113,7 +117,7 @@ class ProductApiController extends FOSRestController
                 ->setPrice($newProduct->getPrice())
                 ->setDtmDiscontinued($newProduct->isDiscontinued());
             $em->flush();
-            throw new HttpException(Response::HTTP_OK, "Product Updated");
+            return $product;
         }
     }
 
@@ -131,9 +135,11 @@ class ProductApiController extends FOSRestController
     }
 
     /**
+     * @param Request $request
+     * @return int
      * @Rest\Get("/products/count/")
      */
-    public function getCount(Request $request)
+    public function getCount(Request $request) : int
     {
         $filters = json_decode($request->get('filters'), true);
         return $this->getDoctrine()->getRepository('AppBundle:Product')->count($filters);

@@ -32,7 +32,6 @@ class ProductRepository extends EntityRepository
         }
         $query = $this->limit($limit, $query);
 
-
         return  $query->getQuery()->getResult();
     }
 
