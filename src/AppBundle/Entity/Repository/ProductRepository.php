@@ -36,6 +36,17 @@ class ProductRepository extends EntityRepository
         return  $query->getQuery()->getResult();
     }
 
+    public function count($filters) : int
+    {
+        $query = $this->_em->getRepository('AppBundle:Product')->createQueryBuilder('p');
+        $query
+            ->select('count(p.id)');
+        if ($filters) {
+            $query = $this->filter($filters, $query);
+        }
+        return $query->getQuery()->getSingleScalarResult();
+    }
+
     public function filter(array $filters, QueryBuilder $query) : QueryBuilder
     {
         $prName = $filters['productName'];
