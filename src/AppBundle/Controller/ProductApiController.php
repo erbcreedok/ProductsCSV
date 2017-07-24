@@ -130,6 +130,17 @@ class ProductApiController extends FOSRestController
         return $this->getDoctrine()->getRepository('AppBundle:Product')->createFilterQuery($filters, $order, $limit);
     }
 
+    /**
+     * @Rest\Get("/products/count/")
+     */
+    public function getCount(Request $request)
+    {
+        $filters = json_decode($request->get('filters'), true);
+        return $this->getDoctrine()->getRepository('AppBundle:Product')->count($filters);
+    }
+
+
+
 
 
 }
