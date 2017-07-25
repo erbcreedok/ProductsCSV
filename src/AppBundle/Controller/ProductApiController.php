@@ -45,7 +45,6 @@ class ProductApiController extends FOSRestController
         ];
     }
 
-
     /**
      * @param int $id
      * @return object
@@ -145,8 +144,22 @@ class ProductApiController extends FOSRestController
         return $this->getDoctrine()->getRepository('AppBundle:Product')->count($filters);
     }
 
+    /**
+     * @param Request $request
+     * @return int
+     * @Rest\Get("/products/isProductCodeFree/")
+     */
+    public function isProductCodeFree(Request $request): int
+    {
+        $productCode = $request->get('productCode');
 
+        $product = $this->getDoctrine()->getRepository('AppBundle:Product')->findOneBy(['productCode'=>$productCode]);
 
-
+        if ($product) {
+            return $product->getId();
+        } else {
+            return -1;
+        }
+    }
 
 }
