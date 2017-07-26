@@ -17,6 +17,9 @@ class DefaultController extends Controller
     public function indexAction(Request $request)
     {
 
+        return $this->render('default/index.html.twig', array(
+            'variable_name' => 'variable_value',
+        ));
         return new Response("<div id = '#container'><h1>Welcome to</span> Symfony ".$request->get("a")."</h1></div>");
     }
 }

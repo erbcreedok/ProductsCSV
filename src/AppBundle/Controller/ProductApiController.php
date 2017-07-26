@@ -29,7 +29,7 @@ class ProductApiController extends FOSRestController
     /**
      * @param Request $request
      * @return array
-     * @Rest\Get("/products")
+     * @Rest\Get("/")
      */
     public function getProducts(Request $request)
     {
@@ -48,7 +48,7 @@ class ProductApiController extends FOSRestController
     /**
      * @param int $id
      * @return object
-     * @Rest\Get("/products/{id}")
+     * @Rest\Get("/{id}")
      */
     public function getProduct(int $id)
     {
@@ -58,7 +58,7 @@ class ProductApiController extends FOSRestController
 
     /**
      * @param Request $request
-     * @Rest\Post("/products/")
+     * @Rest\Post("/")
      * @return string
      *
      */
@@ -76,7 +76,7 @@ class ProductApiController extends FOSRestController
 
     /**
      * @param $id
-     * @Rest\Delete("/products/{id}")
+     * @Rest\Delete("/{id}")
      * @return View
      */
     public function deleteProduct(int $id)
@@ -94,7 +94,7 @@ class ProductApiController extends FOSRestController
     /**
      * @param $id
      * @param Request $request
-     * @Rest\Put("/products/{id}")
+     * @Rest\Put("/{id}")
      * @return Product
      */
     public function updateProduct(int $id, Request $request) : Product
@@ -123,7 +123,7 @@ class ProductApiController extends FOSRestController
     /**
      * @param Request $request
      * @return mixed
-     * @Rest\Post("/products/get/")
+     * @Rest\Post("/get/")
      */
     public function getProductsByOptions(Request $request)
     {
@@ -136,7 +136,7 @@ class ProductApiController extends FOSRestController
     /**
      * @param Request $request
      * @return int
-     * @Rest\Get("/products/count/")
+     * @Rest\Get("/count/")
      */
     public function getCount(Request $request) : int
     {
@@ -147,7 +147,7 @@ class ProductApiController extends FOSRestController
     /**
      * @param Request $request
      * @return int
-     * @Rest\Get("/products/isProductCodeFree/")
+     * @Rest\Get("/isProductCodeFree/")
      */
     public function isProductCodeFree(Request $request): int
     {
