@@ -1,6 +1,23 @@
+acme_api:
+    resource: "@AcmeApiBundle/Controller/"
+    type:     annotation
+#    prefix:   /acme
+
+acme_api_demos:
+    type: rest
+    resource: Acme\ApiBundle\Controller\DemoController
+
 app:
-    resource: '@AppBundle/Controller/'
+    resource: "@AppBundle/Controller/"
     type: annotation
+
+products:
+    type: annotation
+    prefix: /products
+    resource: AppBundle\Controller\ProductApiController
+
+
+
 
 
 #
@@ -11,6 +28,13 @@ app:
 #api:
 #    type: rest
 #    resource: "routing_api.yml"
-products:
-    type: rest
-    resource: AppBundle\Controller\ProductApiController
+
+fos_user:
+    resource: "@FOSUserBundle/Resources/config/routing/all.xml"
+
+NelmioApiDocBundle:
+    resource: "@NelmioApiDocBundle/Resources/config/routing.yml"
+    prefix:   /api/doc
+
+fos_oauth_server_token:
+    resource: "@FOSOAuthServerBundle/Resources/config/routing/token.xml"

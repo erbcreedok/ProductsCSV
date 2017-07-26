@@ -2,6 +2,7 @@ imports:
     - { resource: parameters.yml }
     - { resource: security.yml }
     - { resource: services.yml }
+    - { resource: "@AcmeApiBundle/Resources/config/services.yml" }
 
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
@@ -123,3 +124,21 @@ fos_rest:
         view_response_listener: 'force'
         formats:
             json: true
+
+#FOSUser Configuration
+fos_user:
+    db_driver: orm
+    firewall_name: main
+    user_class: Acme\ApiBundle\Entity\User
+    from_email:
+        address: '%mailer_user%'
+        sender_name: '%mailer_user%'
+
+fos_oauth_server:
+    db_driver:           orm
+    client_class:        Acme\ApiBundle\Entity\Client
+    access_token_class:  Acme\ApiBundle\Entity\AccessToken
+    refresh_token_class: Acme\ApiBundle\Entity\RefreshToken
+    auth_code_class:     Acme\ApiBundle\Entity\AuthCode
+    service:
+        user_provider: fos_user.user_provider.username

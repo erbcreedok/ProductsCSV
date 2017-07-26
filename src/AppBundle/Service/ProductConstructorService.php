@@ -48,6 +48,5 @@ class ProductConstructorService
             ->setDtmAdded(new \DateTime());
 
         return $product;
-
     }
 }
